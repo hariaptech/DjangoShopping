@@ -1,0 +1,183 @@
+{% extends 'shop/layouts/main.html' %}
+
+{% block content %}
+<section class="bg-light py-4 my-5" style="min-height: 600px;">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h4 class="mb-3">{{product}} Details</h4>
+                <hr style="border-color: antiquewhite;">
+                {% include "shop/inc/message.html" %}
+            </div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'collections' product.catagory %}">Collections</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{product}}</li>
+                </ol>
+            </nav>
+            <div class="col-4 my-3 ">
+                <img src="{{product.product_images.url}}" alt="{{product}}" class="card-image-top " id='logo'
+                    style="width: 300px; height:300px; background-repeat: no-repeat;">
+            </div>
+            <div class="col-4 my-3 div  w-25" style="height: 350px;"></div>
+            <div class="col-4 my-3">
+                
+                    
+                <h5>{{product | upper}} Details</h5>
+                <p>{{product.vendor}}</p>
+                <p>{{product.description}}</p>
+                <h6>{{product.original_price}}</h6>
+                <h6>{{product.selling_price}}</h6>
+                <h6>{{product.catagory.name}}</h6>
+                <span class="text-warning">Avalible Products :</span><span class="qty1  text-warning">{{product.quantity}}</span>
+                <div class="my-3">
+                    <form method="post" action="/buy_page">
+                        {% csrf_token %}
+                        {% if product.quantity > 0 %}
+                        <input type="hidden" value="{{product.id}}" name='pid' id="pid">
+                        
+                        <p>
+                    
+                            <div class="input-group" style="width: 150px;">
+                                <label class="input-group-text bg-success text-light " id='btnMinus'><i
+                                        class="fa fa-minus"></i></label>
+                                <input type="text" name="qty" id="txtQty" class="form-control text-center " value="1">
+                                <label type="button" class="input-group-text bg-success text-light " id='btnPlus'>
+                                    <i class="fa fa-plus"></i><label>
+                            </div>
+                            
+                    
+                        </p>
+                            <label class="btn btn-primary" id="btnCart"><i class="fa fa-shopping-cart"></i> Add to
+                                Cart</label>
+                            {% else %}
+                            <label class="btn btn-secondary"><i class="fa fa-minus"></i>Out of stock</label>
+                            {% endif %}
+                            <label class="btn btn-danger" id='btnFav'><i class="fa fa-heart"></i></label>
+                       
+                        <button class="btn btn-warning" type="submit">Buy</button>
+                    
+                    </form>
+                    
+                </div>
+              
+         
+            </div>
+        </div>
+    </div>
+    <p class="p" style="display: none;">{{product.product_images.url}}</p>
+</section>
+<script>
+
+    const btnPlus = document.getElementById('btnPlus')
+    const btnMinus = document.getElementById('btnMinus')
+    const txtQty = document.getElementById('txtQty')
+    const pid = document.getElementById('pid')
+    const btnFav = document.getElementById("btnFav");
+    const btnCard = document.getElementById('btnCart')
+    const tkn = document.querySelector('[name="csrfmiddlewaretoken"]').value
+
+
+    para = document.querySelector(".p")
+    qty1 = document.querySelector(".qty1")
+    let img = document.getElementById("logo");
+    let preview = document.querySelector(".div");
+    let x = preview.offsetWidth / 100;
+    let y = preview.offsetHeight / 100;
+    img.addEventListener("mousemove", (e) => {
+        preview.style.backgroundImage = "url("+para.innerText+")";
+        preview.style.backgroundSize = img.width * x + "px " + img.height * y + "px";
+        let posX = e.offsetX;
+        let posY = e.offsetY;
+        preview.style.backgroundPosition = "-" + posX * x + "px -" + posY * y + "px";
+    });
+
+    img.addEventListener("mouseout", () => {
+        preview.style.backgroundImage = "none";
+    });
+
+    btnPlus.addEventListener('click', function () {
+       
+        v=qty1.innerText
+        v=(parseInt(v))
+        let qty = parseInt(txtQty.value, 10);
+        qty = isNaN(qty) ? 0 : qty;
+       
+     
+        
+        if (qty < v) {
+            
+            qty++;
+            txtQty.value = qty
+        }
+    })
+    btnMinus.addEventListener('click', function () {
+        
+        let qty = parseInt(txtQty.value, 10);
+        qty = isNaN(qty) ? 0 : qty;
+        if (qty > 1) {
+            qty--;
+            txtQty.value = qty
+        }
+    });
+    btnCard.addEventListener('click', function () {
+
+        let qty = parseInt(txtQty.value, 10);
+        qty = isNaN(qty) ? 0 : qty;
+        if (qty > 0) {
+            let postObj = {
+                'product_qty': qty,
+                'pid': pid.value,
+            }
+            fetch("/addtocart", {
+                method: 'POST',
+                credentials: "same-origin",
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify(postObj)
+            }).then(respone => {
+                return response.json();
+            }).then(data => {
+                alert(data['status']);
+            });
+            alert("Sucessfuly added in your card");
+
+        }
+        else {
+
+            alert("Please Enter The Quantity");
+        }
+    });
+
+
+    btnFav.addEventListener("click", function () {
+
+        let postObj = {
+            'pid': pid.value
+        }
+        console.log(postObj);
+        fetch("/fav", {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            body: JSON.stringify(postObj)
+        }).then(response => {
+            return response.json();
+            console.log(response)
+        }).then(data => {
+            //console.log(data);
+            alert(data['status']);
+        });
+
+    });
+
+</script>
+{% endblock content %}

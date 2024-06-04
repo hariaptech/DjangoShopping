@@ -1,0 +1,58 @@
+{% extends "shop/layouts/main.html" %}
+{% block content %}
+<div class="container mb-5" style="margin-top: 70px;">
+    <div class="continer">
+        <h3>Payment</h3>
+        <hr>
+        <div class="container w-50 p-3" style="border:2px solid ">
+            <div class="container">
+                <h3>Buy Details :</h3>
+                <div class="container p-3 ms-5">
+                    <div class="row">
+                        <p> Product Name : {{product.name}}</p>
+                    </div>
+                    <div class="row">
+                        <p>Product Qty : {{qty}}</p>
+                    </div>
+                    <div class="row">
+                        <p>Product Price : {{product.selling_price}}</p>
+                    </div>
+                    <div class="row">
+                        <p>Total Price: {{total}}</p>
+                    </div>
+                </div>
+
+            </div>
+            <div class=" container ">
+                <h3>Pay Options</h3>
+                <div class="row container ms-3 p-3">
+                    <div class="col-2">
+                        <input type="radio" name="pay" value="card" id="">Card
+                    </div>
+                    <div class="col-4">
+                        <input type="radio" name="pay" value="online Payment" id="">Online Payment
+                    </div>
+                    <div class="col-4">
+                        <input type="radio" name="pay" value="Cash on Delivery" id="">Cash On Delivery
+                    </div>
+                    <div class="col-2">
+                        <input type="radio" name="pay" value="Cash on Delivery" id="">EMI
+                    </div>
+                </div>
+            </div>
+            <div class="container row w-50">
+                <h3>Card Number</h3>
+                <div class="col ms-4">
+                    <input class="form-control" type="text">
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col">
+                    {% comment %} <a href="{% url 'collections' item.name%}"> {% endcomment %}
+                    <a  class="btn btn-success p" href="{% url 'Payment_success' product qty%}">Pay Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
